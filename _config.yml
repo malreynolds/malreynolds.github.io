@@ -32,7 +32,7 @@ show_excerpts: true
 google_analytics: UA-NNNNNNNN-N
 
 disqus:
-  shortname: atanasabrashev
+  shortname: malreynolds
 
 # Exclude from processing.
 # The following items will not be processed, by default. Create a custom list

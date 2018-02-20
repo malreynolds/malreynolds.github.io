@@ -2,13 +2,14 @@
 layout: post
 title:  "My First Post"
 date:   2018-01-27 18:44:51 +0000
+permalink: 	/posts/:categories/:year/:month/:day/:title/
 comments: true
-categories: jekyll update
+categories: personal 
 ---
 
 Welcome to my first post. You will find nothing interesting here. I mean the post, not the website. Well, eventually anyway...
 
-One the one hand, this is just a test to see if my setup works. This whole thing would be quite silly if it didn't. More importantly though, this post is also a promise. A promise that I will keep updating this blog so much that eventually this embarrassing post will disappear under a pile of all the interesting content I am going to write, so that no one will ever see it again.
+One the one hand, this is just a test to see if my setup works. This whole thing would be quite silly if it didn't. More importantly though, this post is also a promise. A promise that I will keep updating this blog so much that eventually this embarrassing post will disappear under a pile of all the interesting content I am going to write, so that no one will ever see it again. Are you cringing hard yet? I know I am. 
 
 So here is what is on the agenda. First, I plan on doing coding competitions again. I will do all the available educational rounds on [Codeforces](http://codeforces.com/) before doing so, so I expect to have a post for each round, after which I will continue with the normal rounds.
 
@@ -25,11 +26,10 @@ print_hello('Nasko')
 
 {% highlight c++ %}
 #include <iostream>
-using namespace std;
 
 int main() {
-    cout << "Hello, Nasko" << endl;
+    std::cout << "Hello, Nasko"; 
     return 0;
 }
-// Outputs "Hi, Nasko" to STDOUT
+// Outputs "Hello, Nasko" to STDOUT
 {% endhighlight %}
