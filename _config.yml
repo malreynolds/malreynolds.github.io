@@ -17,7 +17,7 @@ title: Atanas Abrashev's Personal Website
 author: Atanas Abrashev
 email: atanas.abrashev@gmail.com
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
+url: https://malreynolds.github.io # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: atanasabrashev
 github_username:  malreynolds
 linkedin_username:  atanasabrashev
