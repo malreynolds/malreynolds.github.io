@@ -18,18 +18,19 @@ Second on my list is tidying up and adding my projects. I have completed the fir
 Since I am supposed to test stuff out, here are some useless code snippets to test code highlighting. As a bonus for getting through all this, they show how my friends call me. See you next time!
 
 {% highlight python %}
+# Outputs "Hi, Nasko" to STDOUT
 def print_hello(name):
   print("Hi,", name)
 print_hello('Nasko')
-# Outputs "Hi, Nasko" to STDOUT
 {% endhighlight %}
 
 {% highlight c++ %}
 #include <iostream>
 
+// Outputs "Hello, Nasko" to STDOUT
 int main() {
     std::cout << "Hello, Nasko"; 
     return 0;
 }
-// Outputs "Hello, Nasko" to STDOUT
+
 {% endhighlight %}
