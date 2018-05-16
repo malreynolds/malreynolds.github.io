@@ -7,9 +7,9 @@ comments: true
 categories: codeforces educational 
 ---
 
-Welcome to the first post in a series of Educational Codeforces Round posts. I think these rounds are a great opportunity for people to get into competitive programming, but the lack of good editorials can make them a bit difficult to understand for complete beginners. Hopefully this series will fill some of the gaps the reader (and myself) might have. 
+Welcome to the first post in a series of Educational Codeforces Round posts. I think these rounds are a great opportunity for people to get into competitive programming, but the lack of good editorials can make them a bit difficult towards understand for complete beginners. Hopefully this series will fill some of the gaps the reader (and myself) might have. 
 
-The goal is to do one of these once in a while and to include as much detail and explanation as possible. I intend to write solutions both in Python and C++. With the C++ solution I'll always aim for efficiency, whereas with the Python solution the goal is the write the most succinct solution. I might also write out a couple of solutions if I feel like it could contribute to understanding the problem.
+I intend to write solutions both in Python and C++. With the C++ solution I'll always aim for efficiency, whereas with the Python solution the goal is the write the most succinct solution. I might also write out a couple of solutions if I feel like it could contribute to understanding the problem.
 
 On that note, onto the contest! I encourage you to practice the round yourself [here](http://codeforces.com/contest/598/), before looking at the solutions. 
 
@@ -117,7 +117,7 @@ Finally, we can actually abstract away the whole rotation algorithm by using the
 
 using namespace std;
 
-/* static void my_rotate(int start, int middle, int end, string &s) {
+/* inline void my_rotate(int start, int middle, int end, string &s) {
     if (middle == end) return;
     int next = middle;
     while (start < next) {
@@ -160,14 +160,16 @@ print(s)
 # [Problem C - Nearest Vectors](http://codeforces.com/contest/598/problem/C)
 We're given a set of vectors in a 2D plane, all starting at the origin and we're asked to find a pair of vectors with smallest non-oriented(positive) between them. 
 
-An obvious solution would be to brute force all combinations of vectors and find the angles between each combination in two nested loops, storing the smallest value. Note that this isn't going to work, because the complexity is \\( \mathcal{O}(n^2) \\), which will give us TLE on the given input size.
+An obvious solution would be to brute force all possible pairs of vectors and find the angles between each combination in two nested loops, storing the smallest value. Note that this isn't going to work, because the complexity is \\( \mathcal{O}(n^2) \\), which will give us TLE on the given input size.
 
-Insteaed, we can treat this as a sorting problem. We can find the angle each vector makes with the x axis and sort on that. Then, we can iterate through every consecutive pair of vectors and find the angles between them, storing the smallest result. Since the vectors are sorted, we're guaranteed that the angle each vector makes with it's two adjacent vectors is the smallest angle that vector makes with any other vector in the input data.
+Instead, we can treat this as a sorting problem. We can find the angle each vector makes with the x axis and sort on that. Then, we can iterate through every consecutive pair of vectors and find the angles between them, storing the smallest result. Since the vectors are sorted, we're guaranteed that the angle each vector makes with it's two adjacent vectors is the smallest angle that vector makes with any other vector in the input data.
+
+The overall complexity here is dominated by the sorting term, and C++ **sort()** is \\(\mathcal{O}(n \log(n)) \\).
 
 To find the angle between a vector and it's x axis, we can use the **atan2()** function.
 
 ### Solution (C++)
-We're using a struct to store the angle the vector makes with the x axis, as well as the index of the vector for convenience and we use the builtin sort in C++. Everything else is as described above.
+We're using a struct to store the angle the vector makes with the x axis, as well as the index of the vector for convenience and we use the builtin sort in C++. Another thing to keep in mind is that we need to lose **long double** type, otherwise we lose precision.
 
 {% highlight c++ %}
 #include <iostream>
@@ -190,8 +192,8 @@ bool cmp(PointVector a, PointVector b) {
 
 int main()
 {
-    int n, a, b, x, y;
-    long double bestAns, currentAns;
+    int n, a, b;
+    long double bestAns, currentAns, x, y;
     cin >> n;
     vector<PointVector> vectors(n);
     for (int i = 0; i < n; i++) {
@@ -201,7 +203,7 @@ int main()
     }
 
     sort(vectors.begin(), vectors.end(), cmp);
-
+    
     bestAns = (2 * PI - abs(vectors[0].angle) - abs(vectors[n - 1].angle));
     a = vectors[0].i; b = vectors[n-1].i;
     for (int i = 0; i < n - 1; i++) {
@@ -218,6 +220,7 @@ int main()
 }
 {% endhighlight %}
 ### Solution (Python)
+Here is an equivalent Python implementation. Note, that calculating the angle might cause issues with the judge system. We might need a more numerically stable method for finding the angles (ideally one such that doesn't use division). 
 {% highlight python %}
 import math
 
@@ -233,7 +236,6 @@ best = 2 * math.pi - abs(vectors[0][0]) - abs(vectors[n-1][0])
 p1, p2 = vectors[0][1], vectors[n-1][1]
 for i in range(n - 1):
     current = vectors[i+1][0] - vectors[i][0]
-    print(current, vectors[i][1], vectors[i+1][1])
     if (current < best and current != 0):
         best = current
         p1, p2 = vectors[i][1], vectors[i+1][1]
@@ -242,5 +244,318 @@ print(p1, p2)
 {% endhighlight %}
 
 # [Problem D - Igor in the Museum](http://codeforces.com/contest/598/problem/D)
+We're given a rectangular **n x m** grid with passable **'.'** and impassable **'*'** cells. Given **k** starting positions where we're guaranteed to start at a passable cell, we want to find the maximum number of impassable cells when can access for each starting position.
+
+This is a classic Depth-first search problem. We'll explore all possible cells from a starting position and record the final count back to stdout. Since we use our **visited** array to store which nodes of the graph have been visited, we are guaranteed that every node will be visited at most once. Thus the overall complexity is \\( \mathcal{O}(m \times n) \\).
+### Solution (C++)
+{% highlight c++ %}
+#include <cstdio>
+
+using namespace std;
+
+char grid[1001][1001];
+int visited[1001][1001];
+int ans[1000001];
+int n, m, k, component = 1;
+
+int count(int x, int y) {
+    if (visited[x][y]) return 0;
+    if (grid[x][y] == '*') return 1;
+    if (grid[x][y] == '.') visited[x][y] = component;
+    return count(x-1, y) + count(x, y-1) + count(x+1, y) + count(x, y+1);
+}
+
+int main()
+{
+    scanf("%d %d %d\n", &n, &m, &k);
+    for (int i = 1; i <= n; i++) {
+        for (int j = 1; j <= m; j++) {
+            scanf("%c", &grid[i][j]);
+        }
+        scanf("\n");
+    }
+    int x, y;
+    while (k--) {
+        scanf("%d %d\n", &x, &y);
+        if (!visited[x][y]) {
+            ans[component] = count(x, y);
+            component++;
+        }
+        printf("%d\n", ans[visited[x][y]]);
+    }
+    return 0;
+}
+{% endhighlight %}
+### Solution (Python)
+I actually struggled to find a Python solution here that is able to run within the given time limit. I think the function calls in the recursion are very expensive. It looks like the problem was designed to be solved by faster languages, given the judge time limit, but I could be wrong. Please comment below if you have an answer!
+{% highlight python %}
+ddef count(x, y):
+    if visited[x][y] != 0: return 0
+    if grid[x][y] == '*': return 1
+    visited[x][y] = component
+    return count(x-1, y) + count(x, y-1) + count(x+1, y) + count(x, y+1)
+
+n, m, k = map(int, input().split())
+
+grid = []
+for _ in range(n):
+    grid.append(input())
+
+ans, visited, component = {0: 0}, [[0] * (m) for _ in range(n)], 1
+while(k):
+    x, y = map(int, input().split())
+    x, y = x-1, y-1
+    if visited[x][y] == 0:
+        ans[component] = count(x, y)
+        component = component + 1
+    k = k - 1
+    print(ans[visited[x][y]])
+{% endhighlight %}
 # [Problem E - Chocolate Bar](http://codeforces.com/contest/598/problem/E)
+Let's try to define a recurrence relation which solves this problem. Given a whole **n x m** piece, we can only split in direction at a time. That means that we can either split it vertically or horizontally. If we split along the **n** dimension, the cost of splitting is **m x m**. Similarly, if we split along the **m** dimension, the cost of splitting is **n x n**. Finally, when we perform a split, we can take **i** squares from one of the splits and **k - i** squares from the other split.
+
+Now, let's define a function \\(f(n, m, k)\\), where **f** is the minimum cost required to get **k** squares from a **n x m** piece. We can find the minimum cost by exploring all possible vertical(**n**) and horizontal(**m**) splits and for each split we want to explore every possible configuration **(i, k - i)** of taking **k** squares. If we define \\(f_{h}(n, m, k)\\)  as minimum cost required to get **k** squares from **n x m** piece if we split horizontally and \\(f_v(n, m, k)\\) if we split vertically, we end up with the following recurrence relation: 
+
+$$f(n, m, k) = 
+\begin{cases}
+min(f_{h}(n, m, k), f_{v}(n, m, k)) & \text{if $n \times m \neq k$} \\
+0 & \text{if $n \times m = k$} \\
+0 & \text{if $k = 0$} 
+\end{cases}$$
+$$f_{h}(n, m, k) = \forall_{i \in [0,n]} \forall_{j \in [1,k]} min(f(n, i, j), f(n, m - i, k - j ))$$
+$$f_{v}(n, m, k) = \forall_{i \in [0,m]} \forall_{j \in [1,k]} min(f(i, m, j), f(n - i, m, k - j ))$$
+
+We can see that we can exhaust all split combinations using two nested loops. Another realization is that we can leverage symmetry to only check half of all possible splits - the splits **(i, n-i)** and **(n-i, i)** give us the same pieces.
+
+Finally, the problem has an optimal substructure and overlapping subproblems. This means we can use dynamic programming to improve its currently exponential complexity. Instead of repeating computations for a given combination of \\(f(n, m, k)\\), we can use memoization store each possible value of the function, giving us an overall complexity of \\( \mathcal{O}(t \times n \times m \times k) \\).
+
+After all the work we've done, the solutions below are trivial:
+
+### Solution (C++)
+{% highlight c++ %}
+#include <iostream>
+
+using namespace std;
+
+int dp[31][31][51];
+
+int cost(int n, int m, int k) {
+
+    if (dp[n][m][k] || k == 0 || n * m == k) return dp[n][m][k];
+
+    int bestMin = 1e9;
+    for (int i = 1; i <= n - i; i++) {
+        for (int j = 0; j <= k; j++) {
+            bestMin = min(bestMin, cost(i, m, j) + cost(n - i, m, k - j) + m * m);
+        }
+    }
+
+    for (int i = 1; i <= m - i; i++) {
+        for (int j = 0; j <= k; j++) {
+            bestMin = min(bestMin, cost(n, i, j) + cost(n, m - i, k - j) + n * n);
+        }
+    }
+
+    return dp[n][m][k] = bestMin; 
+}
+
+int main() {
+    int t;
+    cin >> t;
+    int n, m, k;
+    while(t--) {
+        cin >> n >> m >> k;
+        cout << cost(n, m, k) << endl;
+    } 
+}
+{% endhighlight %}
+
+### Solution (Python)
+The equivalent Python solution is, as expected, much slower. We can make an interesting observation on performance however - if we define **c** as **1e9** like we did in the C++ solution, we won't pass the judge time limit. This is because in Python **1e9** is a **float,** whereas in C++ it gets truncated to an an **int**. Because **c** ends up being a **float**, all **int** values that get compared to it get coerced to float and operations on floating point numbers are much slower. 
+{% highlight python %}
+t = int(input())
+
+dp = [[[0 for i in range(51)] for j in range(31)] for k in range(31)]
+
+def cost(n, m, k):
+    if (dp[n][m][k] or k == 0 or n * m == k): return dp[n][m][k]
+    c = 10**9
+    for i in range(1, n // 2 + 1):
+        for j in range(k + 1):
+            c = min(c, cost(i, m, j) + cost(n - i, m, k - j) + m * m)
+    for i in range(1, m // 2 + 1):
+        for j in range(k + 1):
+            c = min(c, cost(n, i, j) + cost(n, m - i, k - j) + n * n)
+    dp[n][m][k] = c
+    return c
+
+for _ in range(t):
+    n, m, k = map(int, input().split())
+    print(cost(n, m, k))
+{% endhighlight %}
+
 # [Problem F - Cut Length](http://codeforces.com/contest/598/problem/F)
+        // We calculate the cross products of two adjacent points and a vector parallel with the given line.
+        // If the points lie on the same side, it means that
+        // the edge that the two points define does not intersect the given line
+        // The cross product tells us where these points lie with respect to the given line (left or right)
+        // Otherwise, calculate the t at the intersection in the parametric equation of the line.
+        // We have Pi, Pj, definining the intersection polygon edge and we have P and Q defining the line
+        // Using parametric equation of a line, we have:
+        // OP + t * (OQ - OP) and OPi + r * (OPi - OPj);
+        // The lines intersect when OP + t * (OQ - OP) ==  OPi + r * (OPi - OPj) for some given t and r.
+        // We cross product both sides by (OPi - OPj) and we get:
+        // (OP + t * (OQ - OP)) ^ (OPi - OPj) == (OPi + r * (OPi - OPj)) ^ (OPi - OPj)
+        // since x ^ x == 0, we can simplify to:
+        // t = ((OPi - OP) ^ (OPi - OPj)) / ((OQ - OP) ^ (OPi - OPj))
+### Solution (C++)
+{% highlight c++ %}
+#include <iostream>
+#include <algorithm>
+#include <vector>
+#include <cmath>
+#include <iomanip>
+
+using namespace std;
+
+const long double eps = 1e-9;
+
+inline int sign(long double num) {
+    if (num > eps) return 1;
+    if (num < -eps) return -1;
+    return 0;
+}
+
+struct Point {
+    long double x, y;
+    Point() {}
+    Point(long double x, long double y): x(x), y(y) {}
+    Point operator + (const Point &other) const {
+        return Point(x + other.x, y + other.y);
+    }
+
+    Point operator - (const Point &other) const {
+        return Point(x - other.x, y - other.y);
+    }
+
+    long double operator ^ (const Point &other) const {
+        return x * other.y - y * other.x;
+    }
+
+    long double length() const {
+        return hypotl(x, y);
+    }
+};
+
+void solve(vector<Point> polygon, Point p, Point q) {
+    int n = polygon.size();
+
+    vector<pair<long double, int>> intersectionPairs;
+
+    for (int i = 0, j = i + 1; i < n; i++, j = (j + 1) % n) {
+        int startSign = sign((polygon[i] - p) ^ (q - p));
+        int endSign = sign((polygon[j] - p) ^ (q - p));
+        if (startSign == endSign) continue;
+        long double t = ((polygon[i] - p) ^ (polygon[i] - polygon[j])) / ((q - p) ^ (polygon[i] - polygon[j]));
+        intersectionPairs.push_back(make_pair(t, endSign - startSign));
+    }
+
+    sort(intersectionPairs.begin(), intersectionPairs.end());
+
+    long double totalT = 0, previousT = 0;
+    int count = 0;
+    for (auto intersectionPair : intersectionPairs) {
+        if (count > 0) totalT += intersectionPair.first - previousT;
+        previousT = intersectionPair.first;
+        count += intersectionPair.second;
+    }
+
+    cout << totalT * (q - p).length() << endl;
+}
+
+int main() {
+    int n, m;
+    cout << fixed << setprecision(12);
+    cin >> n >> m;
+
+    vector<Point> polygon(n);
+    for (int i = 0; i < n; i++) {
+        cin >> polygon[i].x >> polygon[i].y;
+    }
+
+    long double area = 0;
+    for (int i = 0, j = i + 1; i < n; i++, j = (j + 1) % n) {
+        area += polygon[i] ^ polygon[j];
+    }
+
+    if (area < 0) reverse(polygon.begin(), polygon.end());
+
+    for (int i = 0; i < m; i++) {
+        Point p, q;
+        cin >> p.x >> p.y >> q.x >> q.y;
+        solve(polygon, p, q);
+    }
+}
+{% endhighlight %}
+### Solution (Python)
+{% highlight python %}
+import math
+
+eps = 1e-9
+
+class Vector:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __add__(self, v):
+        return Vector(self.x + v.x, self.y + v.y)
+    
+    def __sub__(self, v):
+        return Vector(self.x - v.x, self.y - v.y)
+    
+    def length(self):
+        return math.hypot(self.x, self.y)
+
+def sign(n):
+    if n > eps: return 1
+    if n < -eps: return -1
+    return 0
+
+def cross(a, b):
+    return a.x * b.y - a.y * b.x
+
+def solve(polygon, p, q):
+    intersections = []
+    for (a, b) in zip(polygon, polygon[1:] + polygon[:1]):
+        ss = sign(cross(a - p, q - p))
+        es = sign(cross(b - p, q - p))
+
+        if ss == es: continue
+
+        t = cross(a - p, a - b) / cross(q - p, a - b)
+        intersections.append((t, es - ss))
+    intersections = sorted(intersections)
+
+    total_t, previous_t, count = [0] * 3
+    for t, order in intersections:
+        if (count > 0): total_t += t - previous_t
+        previous_t = t
+        count += order
+
+    print(total_t * (q - p).length())
+    
+n, m = map(int, input().split())
+
+polygon = []
+for i in range(n):
+    x, y = map(float, input().split())
+    polygon.append(Vector(x, y))
+area = sum(map(lambda x: cross(x[0], x[1]), zip(polygon, polygon[1:] + polygon[:1])))
+if (area < 0): polygon.reverse()
+
+for i in range(m):
+    x1, y1, x2, y2 = map(float, input().split())
+    solve(polygon, Vector(x1, y1), Vector(x2, y2))
+
+{% endhighlight %}
