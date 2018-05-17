@@ -101,11 +101,11 @@ int main() {
 {% endhighlight %}
 
 ### Solution 2(C++)
-The second solution has a similar complexity of \\( \mathcal{O}(m \times  \|s\|) \\) and doesn't use extra memory, but the inner loop that does the rotation is slightly more expensive, i.e. has a higher constant. This is however offset from not having to create a substring which is a very expensive operation.
+The second solution has a similar complexity of \\( \mathcal{O}(m \times  \|s\|) \\) and doesn't use extra memory, but the inner loop that does the rotation is slightly more expensive, i.e. has a higher constant. This is however offset by not having to create a substring which is a very expensive operation.
 
 The idea here is to to first find an index **middle** whose value is the position of the element that will be moved to the first position in the final string. We then keep 2 running indices - **start** going from **l** to **r**, which will define the portion of the string that's already in it's final place, and **next** starting from **middle**, which defines the position of the correct next element in the final string. We keep swapping the elements at **start** and **next** and increment both indices until **start** equals **middle**. At this point, we want to set **middle** again to be current position of the second index. Notice that this is the correct value of **middle** for the remainder of the string indexed by (**l + start**, **r**). We also want to make sure that if **next** reaches **r** we set it back to the current value of **middle** to make sure we don't go off the end of the string. We repeat this process until **start == next**. 
 
-This probably sounds a lot more complicated than it is - I encourage you to have a look at the code and draw out the algorithm on a sheet of paper. 
+This probably sounds a lot more complicated than it is. I encourage you to have a look at the code and draw out the algorithm on a sheet of paper. 
 
 Finally, we can actually abstract away the whole rotation algorithm by using the C++ STL **[rotate()](http://www.cplusplus.com/reference/algorithm/rotate/)** function. The above algorithm actually implements the same algorithm as **rotate()**. In the final code, I'm showing the version using the builtin function, but I've also left out the bits necessary to do our own rotation as comments.
 
@@ -312,7 +312,7 @@ while(k):
     print(ans[visited[x][y]])
 {% endhighlight %}
 # [Problem E - Chocolate Bar](http://codeforces.com/contest/598/problem/E)
-Let's try to define a recurrence relation which solves this problem. Given a whole **n x m** piece, we can only split in direction at a time. That means that we can either split it vertically or horizontally. If we split along the **n** dimension, the cost of splitting is **m x m**. Similarly, if we split along the **m** dimension, the cost of splitting is **n x n**. Finally, when we perform a split, we can take **i** squares from one of the splits and **k - i** squares from the other split.
+Let's try to define a recurrence relation which solves this problem. Given a whole **n x m** piece, we can only split in one direction at a time, i.e. either vertically or horizontally. If we split along the **n** dimension, the cost of splitting is **m x m**. Similarly, if we split along the **m** dimension, the cost of splitting is **n x n**. Finally, when we perform a split, we can take **i** squares from one of the splits and **k - i** squares from the other split.
 
 Now, let's define a function \\(f(n, m, k)\\), where **f** is the minimum cost required to get **k** squares from a **n x m** piece. We can find the minimum cost by exploring all possible vertical(**n**) and horizontal(**m**) splits and for each split we want to explore every possible configuration **(i, k - i)** of taking **k** squares. If we define \\(f_{h}(n, m, k)\\)  as minimum cost required to get **k** squares from **n x m** piece if we split horizontally and \\(f_v(n, m, k)\\) if we split vertically, we end up with the following recurrence relation: 
 
