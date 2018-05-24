@@ -395,7 +395,7 @@ for _ in range(t):
 {% endhighlight %}
 
 # [Problem F - Cut Length](http://codeforces.com/contest/598/problem/F)
-This is one of the more geometrical problems in Codeforces. Given a simple (without self-intersections) n-gon, and m lines, we need to find the length of the common part of each line with the n-gon. 
+This is one of the more geometrical problems on Codeforces. Given a simple (without self-intersections) n-gon, and m lines, we need to find the length of the common part of each line with the n-gon. 
 
 To begin with, we want to make sure we have a consistent ordering of the polygon vertices. We're going to treat each vertex as a position vector(i.e. starting from the origin O).
 We know that the cross product between two vectors gives us the oriented area of the paralellogram defined by the two vectors.  Similarly, we can use the shoelace formula to find the oriented area of the polygon. We can use the sum of the cross products of all position vectors, which will give us the doubled oriented area. We don't really care about the actual area, but it's sign, which will tell us whether or not our vertices are given clockwise or counter-clockwise. We make sure that if the doubled oriented area is negative, then we reverse the order of the vertices so that they are always ordered clockwise.
