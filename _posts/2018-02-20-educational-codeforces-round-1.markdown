@@ -395,19 +395,38 @@ for _ in range(t):
 {% endhighlight %}
 
 # [Problem F - Cut Length](http://codeforces.com/contest/598/problem/F)
-        // We calculate the cross products of two adjacent points and a vector parallel with the given line.
-        // If the points lie on the same side, it means that
-        // the edge that the two points define does not intersect the given line
-        // The cross product tells us where these points lie with respect to the given line (left or right)
-        // Otherwise, calculate the t at the intersection in the parametric equation of the line.
-        // We have Pi, Pj, definining the intersection polygon edge and we have P and Q defining the line
-        // Using parametric equation of a line, we have:
-        // OP + t * (OQ - OP) and OPi + r * (OPi - OPj);
-        // The lines intersect when OP + t * (OQ - OP) ==  OPi + r * (OPi - OPj) for some given t and r.
-        // We cross product both sides by (OPi - OPj) and we get:
-        // (OP + t * (OQ - OP)) ^ (OPi - OPj) == (OPi + r * (OPi - OPj)) ^ (OPi - OPj)
-        // since x ^ x == 0, we can simplify to:
-        // t = ((OPi - OP) ^ (OPi - OPj)) / ((OQ - OP) ^ (OPi - OPj))
+This is one of the more geometrical problems on Codeforces. Given a simple (without self-intersections) n-gon, and m lines, we need to find the length of the common part of each line with the n-gon. 
+
+To begin with, we want to make sure we have a consistent ordering of the polygon vertices. We're going to treat each vertex as a position vector(i.e. starting from the origin O).
+We know that the cross product between two vectors gives us the oriented area of the paralellogram defined by the two vectors.  Similarly, we can use the shoelace formula to find the oriented area of the polygon. We can use the sum of the cross products of all position vectors, which will give us the doubled oriented area. We don't really care about the actual area, but it's sign, which will tell us whether or not our vertices are given clockwise or counter-clockwise. We make sure that if the doubled oriented area is negative, then we reverse the order of the vertices so that they are always ordered clockwise.
+
+Let's think about the problem itself. We have a line and we want to find all of its intersections with the polygon. The parametric equation of a line tells us that PQ = OP + t * (OQ - OP). If we can somehow find the value of t that represents the magnitute of all of the intersections of the line with the polygon, we would have our solution.
+
+Lets iterate through every pair of adjacent vertices. We have a line, defined by the points P and Q, and two adjacent vertices, A and B. The vectors PA and PB are given by OA - OP and OB - OP respectively, and the vector PQ is given by OQ - OP. We know that the cross product sign tells us which side the first vector lies on with respect to the second vector. Therefore, we can use that information to determine if AB intersects PQ by checking the sign of the cross products of both PA and PB with PQ. If the signs are different(or 0, when the vectors are collinear), it means that AB intersects PQ and not otherwise. 
+
+We can find an equation for t at the intersection, using some vector algebra:
+
+Using parametric equation of a line, we have:
+
+OP + t * (OQ - OP) for the line defined by the points P and Q, defining the given line.
+OA + r * (OB - OA) for the line defined by the points A and B, defining a polygon edge.
+
+The lines intersect only when:
+
+OP + t * (OQ - OP) = OA + r * (OB - OA)
+
+Lets cross both sides by (OB - OA):
+
+(OP + t * (OQ - OP)) X (OB - OA) = (OA + r * (OB - OA)) X (OB - OA)
+
+Since v X v = 0, we can simplify and find this equation for t at the intersection:
+
+t = (OA - OP) X (OQ - OP) / (OQ - OP) X (OB - OA)
+
+Great! We're almost there. Finally, we need to consider the order of the intersections and how to combine them together. For each intersection we store the t value and the type. There are 6 types of intersections, defined by the cross product signs we calculated earlier. We define an intersection type between AB and PQ as the difference between the sign of the cross product of BP with PQ and AP with PQ. The net sum of all intersection types should always be 0. This is because for all intersections where AB and PQ aren't collinear, there is an even number of intersections, such that for each "opening" intersection there is a "closing" one. Therefore if, we sort the intersections by t and intersection type, we can make sure that we know when two intersection points define an edge inside or outside of the polygon. 
+
+This probably sounds very obfuscated. I encourage you to look at the code below and draw out a couple of examples - hopefully it will make all of this clearer.
+ 
 ### Solution (C++)
 {% highlight c++ %}
 #include <iostream>
